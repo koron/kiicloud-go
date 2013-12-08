@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 )
 
@@ -34,7 +33,7 @@ type Context struct {
 }
 
 func NewContext(info *AppInfo) (cx *Context, err error) {
-	switch (info.Site) {
+	switch info.Site {
 	case US:
 	case JP:
 	case CN:
@@ -46,29 +45,42 @@ func NewContext(info *AppInfo) (cx *Context, err error) {
 	return
 }
 
+func (cx *Context) newRequest(method, path string, v interface{}, ctype string) (req *http.Request, err error) {
+	// Build request JSON.
+	var body *bytes.Buffer
+	if v != nil {
+		b, err := json.Marshal(v)
+		if err != nil {
+			return nil, err
+		}
+		body = bytes.NewBuffer(b)
+	}
+	req, err = http.NewRequest(method, cx.restUrl(path), body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("X-Kii-AppID", cx.app.Id)
+	req.Header.Add("X-Kii-AppKey", cx.app.Key)
+	if ctype != "" {
+		req.Header.Add("Content-Type", ctype)
+	}
+	return
+}
+
 func (cx *Context) Login(name, pass string) (ux *UserContext, err error) {
 	// TODO:
 	return nil, nil
 }
 
 func (cx *Context) Admin(info *AdminInfo) (ax *AdminContext, err error) {
-	// Build request JSON.
-	b, err := json.Marshal(oauthTokenRequest{
+	// Build a request.
+	req, err := cx.newRequest("POST", "/oauth2/token", oauthTokenRequest {
 		ClientId:     info.Id,
 		ClientSecret: info.Secret,
-	})
+	}, "application/vnd.kii.OauthTokenRequest+json")
 	if err != nil {
 		return nil, err
 	}
-
-	// Build a request.
-	req, err := http.NewRequest("POST", cx.restUrl("/oauth2/token"), bytes.NewBuffer(b))
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Add("X-Kii-AppID", cx.app.Id)
-	req.Header.Add("X-Kii-AppKey", cx.app.Key)
-	req.Header.Add("Content-Type", "application/vnd.kii.OauthTokenRequest+json")
 
 	// Do the request and read its response's body.
 	resp, err := http.DefaultClient.Do(req)
@@ -76,16 +88,12 @@ func (cx *Context) Admin(info *AdminInfo) (ax *AdminContext, err error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
 
 	// Dispatch with status code.
 	switch resp.StatusCode {
 	case 200:
 		var ar oauthTokenResponse
-		err = json.Unmarshal(body, &ar)
+		err = parseJson(resp.Body, &ar)
 		if err != nil {
 			return nil, err
 		}
@@ -101,7 +109,7 @@ func (cx *Context) Admin(info *AdminInfo) (ax *AdminContext, err error) {
 	default:
 		var er ErrorResponse
 		er.StatusCode = resp.StatusCode
-		err = json.Unmarshal(body, &er)
+		err = parseJson(resp.Body, &er)
 		if err != nil {
 			return nil, err
 		}
