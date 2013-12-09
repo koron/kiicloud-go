@@ -1,0 +1,13 @@
+# Kii Cloud adapter for golang
+
+Get the library.
+
+```sh
+$ go get github.com/koron/kiicloud-go/kii
+```
+
+How to import.
+
+```go
+import "github.com/koron/kiicloud-go/kii"
+```
