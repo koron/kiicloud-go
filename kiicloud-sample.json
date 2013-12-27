@@ -1,0 +1,7 @@
+{
+  "app_site":       "US",
+  "app_id":         "{Your APP_ID}",
+  "app_key":        "{Your APP_KEY}",
+  "client_id":      "{Your CLIENT_KEY (OPTION)}",
+  "client_secret":  "{Your CLIENT_SECRET (OPTION)}"
+}

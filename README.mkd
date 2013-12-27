@@ -11,3 +11,10 @@ How to import.
 ```go
 import "github.com/koron/kiicloud-go/kii"
 ```
+
+## Default configuration.
+
+kii.DefaultConfig() returns default configuration which come from a file
+`kiicloud.json` in current directory.  `kiicloud-sample.json` is a sample for
+it.  Please rename it to `kiicloud.json` and write information of your
+application.
