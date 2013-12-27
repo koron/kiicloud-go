@@ -6,20 +6,23 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 )
 
 type Site int
 
 const (
-	US Site = 0
-	JP      = 1
-	CN      = 2
+	US     Site = 0
+	JP          = 1
+	CN          = 2
+	CUSTOM      = -1
 )
 
 type AppInfo struct {
-	Site Site
-	Id   string
-	Key  string
+	Site           Site
+	Id             string
+	Key            string
+	CustomEndpoint string
 }
 
 type AdminInfo struct {
@@ -37,6 +40,7 @@ func NewContext(info *AppInfo) (cx *Context, err error) {
 	case US:
 	case JP:
 	case CN:
+	case CUSTOM:
 	default:
 		return nil, errors.New(fmt.Sprintf("Unknown kii.Site:%d", info.Site))
 	}
@@ -55,7 +59,7 @@ func (cx *Context) newRequest(method, path string, v interface{}, ctype string) 
 		}
 		body = bytes.NewBuffer(b)
 	}
-	req, err = http.NewRequest(method, cx.restUrl(path), body)
+	req, err = http.NewRequest(method, cx.endpoint(path), body)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +78,7 @@ func (cx *Context) Login(name, pass string) (ux *UserContext, err error) {
 
 func (cx *Context) Admin(info *AdminInfo) (ax *AdminContext, err error) {
 	// Build a request.
-	req, err := cx.newRequest("POST", "/oauth2/token", oauthTokenRequest {
+	req, err := cx.newRequest("POST", "/oauth2/token", oauthTokenRequest{
 		ClientId:     info.Id,
 		ClientSecret: info.Secret,
 	}, "application/vnd.kii.OauthTokenRequest+json")
@@ -123,7 +127,7 @@ func (cx *Context) Bucket(name string) (b *Bucket, err error) {
 	return nil, nil
 }
 
-func (cx *Context) restUrl(path string) string {
+func (cx *Context) endpoint(path string) string {
 	host := ""
 	switch cx.app.Site {
 	case US:
@@ -132,6 +136,8 @@ func (cx *Context) restUrl(path string) string {
 		host = "api-jp.kii.com"
 	case CN:
 		host = "api-cn2.kii.com"
+	case CUSTOM:
+		return cx.app.CustomEndpoint + path
 	}
 	return "https://" + host + "/api" + path
 }
@@ -143,6 +149,11 @@ type UserContext struct {
 type AdminContext struct {
 	Context *Context
 	Token
+}
+
+func (c *AdminContext) SendEvent(deviceID, eventType string, triggeredAt time.Time) (err error) {
+	// TODO:
+	return
 }
 
 type Bucket struct {
