@@ -1,7 +1,7 @@
 package main
 
 import (
-	"./kii"
+	kii "./kii1"
 	"fmt"
 	"time"
 )
