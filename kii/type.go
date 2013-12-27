@@ -31,3 +31,10 @@ type oauthTokenResponse struct {
 	ExpiresIn   int64  `json:"expires_in"`
 	TokenType   string `json:"token_type"`
 }
+
+type sendEventRequest struct {
+	Type        string `json:"_type"`
+	DeviceId    string `json:"_deviceID"`
+	TriggeredAt int64  `json:"_triggeredAt"`
+	UploadedAt  int64  `json:"_uploadedAt"`
+}

@@ -3,6 +3,7 @@ package main
 import (
 	"./kii"
 	"fmt"
+	"time"
 )
 
 func main() {
@@ -22,4 +23,9 @@ func main() {
 		return
 	}
 	fmt.Println("cx.Admin() succeeded:", ax)
+	_, err = ax.SendEvent("foo", "bar", time.Now())
+	if err != nil {
+		fmt.Println("ax.SendEvent() failed:", err)
+		return
+	}
 }

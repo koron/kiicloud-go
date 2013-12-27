@@ -151,9 +151,47 @@ type AdminContext struct {
 	Token
 }
 
-func (c *AdminContext) SendEvent(deviceID, eventType string, triggeredAt time.Time) (err error) {
-	// TODO:
-	return
+// newRequest is alias of Context.newRequest
+func (c *AdminContext) newRequest(method, path string, v interface{}, ctype string) (req *http.Request, err error) {
+	return c.Context.newRequest(method, path, v, ctype)
+}
+
+func to_unixmsec(t time.Time) int64 {
+	return t.UnixNano() / 1e6
+}
+
+func (c *AdminContext) SendEvent(eventType, deviceID string, triggeredAt time.Time) (success bool, err error) {
+	uploadedAt := time.Now()
+	fmt.Println("SendEvent:", deviceID, eventType, triggeredAt.UnixNano() / 1e6, uploadedAt.UnixNano() / 1e6)
+	req, err := c.newRequest("POST", "/apps/{APP_ID}/events", sendEventRequest{
+		eventType,
+		deviceID,
+		to_unixmsec(triggeredAt),
+		to_unixmsec(uploadedAt),
+	}, "application/vnd.kii.EventRecord+json")
+	if err != nil {
+		return false, err
+	}
+
+	// Do the request and read its response's body.
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return false, err
+	}
+	defer resp.Body.Close()
+
+	switch resp.StatusCode {
+	case 204:
+		return true, nil
+	default:
+		var er ErrorResponse
+		er.StatusCode = resp.StatusCode
+		err = parseJson(resp.Body, &er)
+		if err != nil {
+			return false, err
+		}
+		return false, err
+	}
 }
 
 type Bucket struct {
