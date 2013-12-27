@@ -162,7 +162,7 @@ func to_unixmsec(t time.Time) int64 {
 }
 
 // new_map create a map of clone, removed keys which starts with "_".
-func new_map(src *map[string]interface{}) (map[string]interface{}) {
+func new_map(src *map[string]interface{}) map[string]interface{} {
 	dst := make(map[string]interface{})
 	if src == nil {
 		return dst
