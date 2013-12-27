@@ -185,7 +185,8 @@ func (c *AdminContext) SendEvent(eventType, deviceID string, triggeredAt time.Ti
 	reqobj["_uploadedAt"] = to_unixmsec(time.Now())
 
 	// Create a HTTP request.
-	req, err := c.newRequest("POST", "/apps/{APP_ID}/events", reqobj, "application/vnd.kii.EventRecord+json")
+	path := "/apps/" + c.Context.app.Id + "/events"
+	req, err := c.newRequest("POST", path, reqobj, "application/vnd.kii.EventRecord+json")
 	if err != nil {
 		return false, err
 	}
@@ -207,7 +208,7 @@ func (c *AdminContext) SendEvent(eventType, deviceID string, triggeredAt time.Ti
 		if err != nil {
 			return false, err
 		}
-		return false, err
+		return false, &er
 	}
 }
 
