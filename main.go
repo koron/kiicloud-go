@@ -23,7 +23,7 @@ func main() {
 		return
 	}
 	fmt.Println("cx.Admin() succeeded:", ax)
-	_, err = ax.SendEvent("foo", "bar", time.Now())
+	_, err = ax.SendEvent("foo", "bar", time.Now(), nil)
 	if err != nil {
 		fmt.Println("ax.SendEvent() failed:", err)
 		return

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -160,15 +161,31 @@ func to_unixmsec(t time.Time) int64 {
 	return t.UnixNano() / 1e6
 }
 
-func (c *AdminContext) SendEvent(eventType, deviceID string, triggeredAt time.Time) (success bool, err error) {
-	uploadedAt := time.Now()
-	fmt.Println("SendEvent:", deviceID, eventType, triggeredAt.UnixNano() / 1e6, uploadedAt.UnixNano() / 1e6)
-	req, err := c.newRequest("POST", "/apps/{APP_ID}/events", sendEventRequest{
-		eventType,
-		deviceID,
-		to_unixmsec(triggeredAt),
-		to_unixmsec(uploadedAt),
-	}, "application/vnd.kii.EventRecord+json")
+// new_map create a map of clone, removed keys which starts with "_".
+func new_map(src *map[string]interface{}) (map[string]interface{}) {
+	dst := make(map[string]interface{})
+	if src == nil {
+		return dst
+	}
+	for k, v := range *src {
+		if strings.HasPrefix(k, "_") {
+			continue
+		}
+		dst[k] = v
+	}
+	return dst
+}
+
+func (c *AdminContext) SendEvent(eventType, deviceID string, triggeredAt time.Time, values *map[string]interface{}) (success bool, err error) {
+	// Create a request object.
+	reqobj := new_map(values)
+	reqobj["_type"] = eventType
+	reqobj["_deviceID"] = eventType
+	reqobj["_triggeredAt"] = to_unixmsec(triggeredAt)
+	reqobj["_uploadedAt"] = to_unixmsec(time.Now())
+
+	// Create a HTTP request.
+	req, err := c.newRequest("POST", "/apps/{APP_ID}/events", reqobj, "application/vnd.kii.EventRecord+json")
 	if err != nil {
 		return false, err
 	}
