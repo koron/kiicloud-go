@@ -65,7 +65,7 @@ func (c *Client) RegisterUser(loginName, password string, attrs *map[string]inte
 
 	// Create a HTTP request.
 	req, err := c.NewRequest("POST", c.appPath("users"), reqobj,
-		"application//vnd.kii.RegistrationRequest+json")
+		"application/vnd.kii.RegistrationRequest+json")
 	if err != nil {
 		return false, err
 	}

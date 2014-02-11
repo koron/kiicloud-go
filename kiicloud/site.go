@@ -34,6 +34,8 @@ func expandSite(src string) (dst string, err error) {
 		dst = JP.EndPoint()
 	case "CN":
 		dst = CN.EndPoint()
+	default:
+		dst = src
 	}
 	return
 }

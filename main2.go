@@ -16,7 +16,7 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	b, err := c.RegisterUser("foo", "bar", nil)
+	b, err := c.RegisterUser("user01", "pass01", nil)
 	if err != nil {
 		fmt.Println(err)
 		return

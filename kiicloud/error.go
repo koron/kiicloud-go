@@ -1,6 +1,7 @@
 package kiicloud
 
 import (
+	"fmt"
 	"net/http"
 )
 
@@ -13,7 +14,8 @@ type ErrorResponse struct {
 
 // Error returns string format of ErrorResponse.
 func (er *ErrorResponse) Error() string {
-	return "KiiCloud Error:" + er.Code + ":" + string(er.StatusCode) + ":" + er.Message
+	return fmt.Sprintf("ErrorResponse:%d:%s:%s", er.StatusCode, er.Code,
+		er.Message)
 }
 
 func ToError(resp *http.Response) error {
