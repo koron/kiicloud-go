@@ -1,3 +1,4 @@
+*.exe
 /kiicloud.json
-/tmp
 /tags
+/tmp

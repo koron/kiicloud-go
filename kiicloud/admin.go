@@ -20,7 +20,7 @@ type AdminClient struct {
 // NewAdminClient create a new AdminClient.
 func NewAdminClient(entryPoint, appId, appKey, clientId, clientSecret string) (*AdminClient, error) {
 	return &AdminClient{
-		Client{entryPoint, appId, appKey, ""},
+		Client{entryPoint, appId, appKey, "", false},
 		clientId, clientSecret,
 	}, nil
 }
@@ -36,33 +36,28 @@ func (c *AdminClient) Authorize() (string, error) {
 	reqobj["client_id"] = c.ClientId
 	reqobj["client_secret"] = c.ClientSecret
 
-	// Create a HTTP request.
-	req, err := c.NewRequest("POST", "/oauth2/token", reqobj,
-		"application/vnd.kii.OauthTokenRequest+json")
+	err := c.Send("/oauth2/token", "POST", reqobj,
+		"application/vnd.kii.OauthTokenRequest+json",
+		func(resp *http.Response) error {
+			switch resp.StatusCode {
+			case 200:
+				var respobj OauthTokenResponse
+				err := parseJson(resp.Body, &respobj)
+				if err != nil {
+					return err
+				}
+				c.Authorization = fmt.Sprintf("%s %s", respobj.TokenType,
+					respobj.AccessToken)
+				return nil
+			default:
+				return ToError(resp)
+			}
+		})
 	if err != nil {
 		return "", err
 	}
 
-	// Do the request and read its response's body.
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-
-	switch resp.StatusCode {
-	case 200:
-		var respobj OauthTokenResponse
-		err = parseJson(resp.Body, &respobj)
-		if err != nil {
-			return "", err
-		}
-		c.Authorization = fmt.Sprintf("%s %s", respobj.TokenType,
-			respobj.AccessToken)
-		return c.Authorization, nil
-	default:
-		return "", ToError(resp)
-	}
+	return c.Authorization, nil
 }
 
 // UnregisterUser unregisters a user by login name.
@@ -72,24 +67,18 @@ func (c *AdminClient) UnregisterUser(loginName string) (bool, error) {
 		return false, err
 	}
 
-	// Create a HTTP request.
-	req, err := c.NewRequest("DELETE",
-		c.appPath("users/LOGIN_NAME:"+loginName), nil, "")
+	err = c.Send(c.appPath("users/LOGIN_NAME:"+loginName), "DELETE", nil, "",
+		func(resp *http.Response) error {
+			switch resp.StatusCode {
+			case 204:
+				return nil
+			default:
+				return ToError(resp)
+			}
+		})
 	if err != nil {
 		return false, err
 	}
 
-	// Do the request and read its response's body.
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return false, err
-	}
-	defer resp.Body.Close()
-
-	switch resp.StatusCode {
-	case 204:
-		return true, nil
-	default:
-		return false, ToError(resp)
-	}
+	return true, err
 }
