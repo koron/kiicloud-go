@@ -16,10 +16,10 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	b, err := c.RegisterUser("user01", "pass01", nil)
+	auth, err := c.Authorize()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(b)
+	fmt.Println(auth)
 }
