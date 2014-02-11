@@ -74,7 +74,7 @@ func (c *AdminClient) UnregisterUser(loginName string) (bool, error) {
 
 	// Create a HTTP request.
 	req, err := c.NewRequest("DELETE",
-		c.appPath("users/LOGIN_NAME:" + loginName), nil, "")
+		c.appPath("users/LOGIN_NAME:"+loginName), nil, "")
 	if err != nil {
 		return false, err
 	}
