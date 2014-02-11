@@ -1,7 +1,6 @@
 package kiicloud
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 )
@@ -73,6 +72,24 @@ func (c *AdminClient) UnregisterUser(loginName string) (bool, error) {
 		return false, err
 	}
 
-	// TODO:
-	return false, errors.New("Not implemented yet")
+	// Create a HTTP request.
+	req, err := c.NewRequest("DELETE",
+		c.appPath("users/LOGIN_NAME:" + loginName), nil, "")
+	if err != nil {
+		return false, err
+	}
+
+	// Do the request and read its response's body.
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return false, err
+	}
+	defer resp.Body.Close()
+
+	switch resp.StatusCode {
+	case 204:
+		return true, nil
+	default:
+		return false, ToError(resp)
+	}
 }

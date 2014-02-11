@@ -22,16 +22,15 @@ func parseJson(r io.Reader, v interface{}) (err error) {
 }
 
 // writeJson serialize v as JSON.
-func writeJson(v interface{}) (*bytes.Buffer, error) {
-	var body *bytes.Buffer
-	if v != nil {
-		b, err := json.Marshal(v)
-		if err != nil {
-			return nil, err
-		}
-		body = bytes.NewBuffer(b)
+func writeJson(v interface{}) (io.Reader, error) {
+	if v == nil {
+		return nil, nil
 	}
-	return body, nil
+	b, err := json.Marshal(v)
+	if err != nil {
+		return nil, err
+	}
+	return bytes.NewBuffer(b), nil
 }
 
 // newMap clone a map, without keys which start with "_".
