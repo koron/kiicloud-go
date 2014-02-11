@@ -14,7 +14,7 @@ type AdminClient struct {
 
 func NewAdminClient(entryPoint, appId, appKey, clientId, clientSecret string) (*AdminClient, error) {
 	return &AdminClient{
-		Client{entryPoint, appId, appKey},
+		Client{entryPoint, appId, appKey, ""},
 		clientId, clientSecret,
 	}, nil
 }
