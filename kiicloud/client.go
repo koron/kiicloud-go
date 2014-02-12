@@ -3,6 +3,7 @@ package kiicloud
 import (
 	"log"
 	"net/http"
+	"time"
 )
 
 // Client packs info to access the app of Kii Cloud.
@@ -104,6 +105,37 @@ func (c *Client) RegisterUser(loginName, password string, attrs *map[string]inte
 		func(resp *http.Response) error {
 			switch resp.StatusCode {
 			case 201:
+				return nil
+			default:
+				return ToError(resp)
+			}
+		})
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+// SendEvent sends an event for the app.
+func (c *Client) SendEvent(
+	eventType,
+	deviceId string,
+	triggeredAt time.Time,
+	values *map[string]interface{},
+) (bool, error) {
+	// Create a request object.
+	reqobj := newMap(values)
+	reqobj["_type"] = eventType
+	reqobj["_deviceID"] = deviceId
+	reqobj["_triggeredAt"] = toUnixMsec(triggeredAt)
+	reqobj["_uploadedAt"] = toUnixMsec(time.Now())
+
+	err := c.Send(c.appPath("events"), "POST", reqobj,
+		"application/vnd.kii.EventRecord+json",
+		func(resp *http.Response) error {
+			switch resp.StatusCode {
+			case 204:
 				return nil
 			default:
 				return ToError(resp)

@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"strings"
+	"time"
 )
 
 // parseJson read from reader and parse it as JSON.
@@ -46,4 +47,9 @@ func newMap(src *map[string]interface{}) map[string]interface{} {
 		dst[k] = v
 	}
 	return dst
+}
+
+// toUnixMsec converts time.Time to milliseconds from 1970/01/01 00:00:00 UTC.
+func toUnixMsec(t time.Time) int64 {
+	return t.UnixNano() / 1e6
 }
