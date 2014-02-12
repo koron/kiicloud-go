@@ -1,5 +1,5 @@
 {
-  "app_site":       "US",
+  "site":           "US",
   "app_id":         "{Your APP_ID}",
   "app_key":        "{Your APP_KEY}",
   "client_id":      "{Your CLIENT_KEY (OPTION)}",
