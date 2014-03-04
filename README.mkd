@@ -13,12 +13,12 @@ $ go get github.com/koron/kiicloud-go/kii1
 How to import.
 
 ```go
-import kii "github.com/koron/kiicloud-go/kii1"
+import "github.com/koron/kiicloud-go/kiicloud"
 ```
 
 ## Default configuration.
 
-kii.DefaultConfig() returns default configuration which come from a file
+kiicloud.DefaultConfig() returns default configuration which come from a file
 `kiicloud.json` in current directory.  `kiicloud-sample.json` is a sample for
 it.  Please rename it to `kiicloud.json` and write information of your
 application.
