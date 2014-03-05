@@ -13,7 +13,7 @@ type UserClient struct {
 
 // NewUserClient create a new user client.
 func NewUserClient(entryPoint, appId, appKey, loginName, password string) (*UserClient, error) {
-	c := &UserClient{Client {entryPoint, appId, appKey, "", false}}
+	c := &UserClient{Client{entryPoint, appId, appKey, "", false}}
 
 	var err error
 	c.Authorization, err = c.authorize(loginName, password)
@@ -59,5 +59,5 @@ func (c *UserClient) authorize(loginName, password string) (string, error) {
 func (c *UserClient) Bucket(name string) (*Bucket, error) {
 	// TODO: compose correct path root.
 	pathRoot := "/"
-	return &Bucket{c, &c.Client, pathRoot}, nil
+	return &Bucket{&c.Client, pathRoot, c}, nil
 }
