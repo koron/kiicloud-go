@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+// UserClient packs info to access the app as a user.
 type UserClient struct {
 	// All inherit from Client.
 	Client
@@ -53,4 +54,10 @@ func (c *UserClient) authorize(loginName, password string) (string, error) {
 	}
 
 	return authorization, nil
+}
+
+func (c *UserClient) Bucket(name string) (*Bucket, error) {
+	// TODO: compose correct path root.
+	pathRoot := "/"
+	return &Bucket{c, &c.Client, pathRoot}, nil
 }

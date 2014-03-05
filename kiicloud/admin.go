@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-// AdminClient packs info to access the app as administrator.
+// AdminClient packs info to access the app as an administrator.
 type AdminClient struct {
 	// All inherit from Client.
 	Client
